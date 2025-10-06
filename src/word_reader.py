@@ -1,24 +1,22 @@
-#word_reader.py
 from docx import Document
 from rules import COLOR_MAP, RULES
 
 def get_row_highlight(row):
-    """
-    Parcourt toutes les cellules d'une ligne pour détecter la première couleur de surlignage.
-    """
+    """Retourne la première couleur de surlignage trouvée dans une ligne."""
     for cell in row.cells:
         for paragraph in cell.paragraphs:
             for run in paragraph.runs:
                 if run.font.highlight_color:
                     try:
-                        return run.font.highlight_color.name  # ex: 'RED', 'PURPLE'
+                        return run.font.highlight_color.name
                     except:
                         return str(run.font.highlight_color)
     return None
 
 def extract_rows(filepath):
+    """Extrait les lignes du tableau et leur action correspondante."""
     doc = Document(filepath)
-    table = doc.tables[0]  # Une seule table
+    table = doc.tables[0]
     headers = [cell.text.strip() for cell in table.rows[0].cells]
     rows = []
 
@@ -31,6 +29,7 @@ def extract_rows(filepath):
         rows.append(data)
 
     return rows
+
 
 #test_word_reader.py
 '''import os

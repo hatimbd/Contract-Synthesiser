@@ -4,6 +4,8 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from datetime import datetime
+from openpyxl.styles import PatternFill, Font, Border, Alignment, NamedStyle
+import copy
 
 def get_next_version(filepath):
     """Détermine le nom de la prochaine version (V1, V2, ...)."""
@@ -39,34 +41,26 @@ def copy_sheet_format(source_sheet, target_sheet):
             except Exception:
                 pass
 
-
 def update_excel(rows, output_path):
-    """
-    rows : liste de dicts extraits du Word (chaque dict doit contenir 'Log_ID' et 'action' au moins)
-    output_path : chemin vers le fichier Excel existant (sera remplacé par une nouvelle version)
-    """
+    import copy
+    from openpyxl.styles import PatternFill
+
     version = get_next_version(output_path)
     temp_path = output_path.replace(".xlsx", "_temp.xlsx")
 
     if not os.path.exists(output_path):
-        print("❌ Le fichier Excel n'existe pas. Veuillez le placer dans le dossier output.")
+        print(" Le fichier Excel n'existe pas. Veuillez le placer dans le dossier output.")
         return
 
     wb = load_workbook(output_path)
-    # trouver la dernière version Vx (fallback à la dernière feuille si aucune Vx)
     candidate_sheets = [s for s in wb.sheetnames if s.startswith("V") and s[1:].isdigit()]
-    if candidate_sheets:
-        last_version = sorted(candidate_sheets, key=lambda x: int(x[1:]))[-1]
-    else:
-        last_version = wb.sheetnames[-1]
+    last_version = sorted(candidate_sheets, key=lambda x: int(x[1:]))[-1] if candidate_sheets else wb.sheetnames[-1]
 
     source_sheet = wb[last_version]
-
-    # créer la nouvelle feuille et copier le format (mais pas les valeurs)
     new_sheet = wb.create_sheet(title=version)
     copy_sheet_format(source_sheet, new_sheet)
 
-    # Lire les lignes non vides (au moins une cellule non None)
+    # Lire les lignes non vides (éviter les lignes vides à la fin)
     data = [
         list(row)
         for row in source_sheet.iter_rows(values_only=True)
@@ -79,62 +73,78 @@ def update_excel(rows, output_path):
     else:
         headers = [str(h).strip() if h is not None else "" for h in data[0]]
         body = data[1:] if len(data) > 1 else []
-
-        # Supprimer les lignes totalement vides du corps
         body = [
             row for row in body
             if any(str(cell).strip() != "" and cell is not None for cell in row)
         ]
-
         df = pd.DataFrame(body, columns=headers)
 
-    # s'assurer que le dataframe a une colonne Log_ID (sinon la créer)
     if "Log_ID" not in df.columns:
         df["Log_ID"] = ""
 
-    # Appliquer les actions
+    # --- Appliquer les actions ---
+    original_log_ids = set(df["Log_ID"].astype(str).values)
+    added_log_ids = set()
+
     for row in rows:
         action = row.pop("action", "NONE")
         log_id = str(row.get("Log_ID", "")).strip()
 
         if action == "ADD_UPDATE":
-            # si la colonne n'existe pas dans df, on l'ajoute
             for col in row.keys():
                 if col not in df.columns:
                     df[col] = ""
 
-            # mise à jour ou ajout
             if log_id and (log_id in df["Log_ID"].astype(str).values):
-                # mettre à jour les colonnes fournies
+                # mise à jour
                 for col, val in row.items():
                     df.loc[df["Log_ID"].astype(str) == log_id, col] = val
             else:
-                # ajouter une nouvelle ligne en respectant l'ordre des colonnes
+                # ajout
                 new_row = {col: row.get(col, "") for col in df.columns}
                 df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+                if log_id:
+                    added_log_ids.add(log_id)
 
         elif action == "DELETE":
             if "Log_ID" in df.columns and log_id:
                 df = df[df["Log_ID"].astype(str) != log_id]
 
-        # sinon action == "NONE" -> on ignore
+    # Nettoyage final
+    df = df.dropna(how="all").reset_index(drop=True)
 
-    # écrire le dataframe dans la nouvelle feuille (en conservant le style déjà copié)
-    # écrire l'entête
+    # --- Écriture dans la nouvelle feuille ---
     for c_idx, h in enumerate(df.columns.tolist(), start=1):
         cell = new_sheet.cell(row=1, column=c_idx)
         cell.value = h
 
-    # Supprimer les lignes vides éventuelles
-    df = df.dropna(how="all").reset_index(drop=True)
+    # Trouver une ligne modèle (style)
+    model_row_idx = 2 if source_sheet.max_row >= 2 else 1
+    model_row = list(source_sheet.iter_rows(min_row=model_row_idx, max_row=model_row_idx))[0]
+    model_styles = [copy.copy(cell._style) for cell in model_row]
 
-    # écrire les lignes
+    # Style pour les ajouts : fond rouge clair
+    red_fill = PatternFill(start_color="FFFF9000", end_color="FFFF9000", fill_type="solid")
+
+    # Écrire les données avec style conditionnel
     for r_idx, row_vals in enumerate(df.values.tolist(), start=2):
+        is_empty = not any(str(v).strip() for v in row_vals)
+        log_id_val = str(df.iloc[r_idx - 2]["Log_ID"]).strip() if "Log_ID" in df.columns else ""
+
         for c_idx, value in enumerate(row_vals, start=1):
             cell = new_sheet.cell(row=r_idx, column=c_idx)
             cell.value = value
 
-    # sauvegarder dans un fichier temporaire, puis remplacer l'ancien fichier
+            if not is_empty and c_idx <= len(model_styles):
+                cell._style = copy.copy(model_styles[c_idx - 1])
+
+                # surligner les lignes ajoutées
+                if log_id_val in added_log_ids:
+                    cell.fill = red_fill
+            else:
+                cell._style = None  # lignes vides = fond blanc
+
+    # Sauvegarde
     wb.save(temp_path)
     wb.close()
 
@@ -142,8 +152,8 @@ def update_excel(rows, output_path):
         if os.path.exists(output_path):
             os.remove(output_path)
         shutil.move(temp_path, output_path)
-        print(f"✅ Nouvelle version créée : {version}")
+        print(f">>> Nouvelle version créée : {version}")
     except PermissionError:
         alt = output_path.replace(".xlsx", f"_{version}_new.xlsx")
         shutil.move(temp_path, alt)
-        print(f"⚠️ Fichier verrouillé. Sauvegarde sous : {alt}")
+        print(f" Fichier verrouillé. Sauvegarde sous : {alt}")

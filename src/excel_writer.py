@@ -49,7 +49,7 @@ def update_excel(changes, output_path):
     temp_path = output_path.replace(".xlsx", "_temp.xlsx")
 
     if not os.path.exists(output_path):
-        print("❌ Le fichier Excel n'existe pas. Veuillez le placer dans le dossier output.")
+        print(" Le fichier Excel n'existe pas. Veuillez le placer dans le dossier output.")
         return
 
     wb = load_workbook(output_path)
@@ -68,14 +68,14 @@ def update_excel(changes, output_path):
     ]
 
     if not data:
-        print("⚠️ La feuille source est vide.")
+        print(" La feuille source est vide.")
         return
 
     headers = [str(h).strip() for h in data[0]]
     df = pd.DataFrame(data[1:], columns=headers)
 
     if "Log_ID" not in df.columns:
-        print("⚠️ Aucune colonne Log_ID trouvée dans le fichier Excel.")
+        print(" Aucune colonne Log_ID trouvée dans le fichier Excel.")
         return
 
     # --- Styles de surlignage ---
@@ -143,8 +143,8 @@ def update_excel(changes, output_path):
         if os.path.exists(output_path):
             os.remove(output_path)
         shutil.move(temp_path, output_path)
-        print(f"✅ Nouvelle version créée : {version}")
+        print(f" Nouvelle version créée : {version}")
     except PermissionError:
         alt = output_path.replace(".xlsx", f"_{version}_new.xlsx")
         shutil.move(temp_path, alt)
-        print(f"⚠️ Fichier verrouillé. Sauvegarde sous : {alt}")
+        print(f" Fichier verrouillé. Sauvegarde sous : {alt}")

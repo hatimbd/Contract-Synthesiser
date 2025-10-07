@@ -1,6 +1,6 @@
 ### Lancer le projet `contract_synthetiser` :
 
-Ce projet prend un fichier **Word** en entrée, détecte les modifications selon un **code couleur** (🔴 rouge pour ajouter/modifier, 🌸 rose pour supprimer), et met à jour un fichier **Excel** en sortie, en créant une nouvelle version dans une feuille dédiée.
+Ce projet prend un fichier **Word** (contenant un tableau avec du texte surligné dans ses cellules) en entrée, détecte les modifications selon un **code couleur** (🔴 rouge pour **ajouter/modifier**, 🌸 rose pour **supprimer**), et met à jour un fichier **Excel** en sortie, en créant une nouvelle version dans une feuille dédiée.
 
 ### Prérequis :
 
@@ -29,11 +29,11 @@ myvenv\Scripts\activate
 or :  
 
 ```bash
-myvenv\Scripts\activate
+myvenv\Scripts\activate.bat
 ```
 **macOS/Linux** :
 ```bash
-source venv/bin/activate
+source myvenv/bin/activate
 ```
 #### 4. 📚 Installer les dépendances :
 ```bash
@@ -41,17 +41,17 @@ pip install -r requirements.txt
 ```
 
 ### 📄 Fichiers d'entrée/sortie :
-**Entrée** : le fichier Word *input/contrat_parametrage.docx* contenant une table avec des cellules colorées :
+**Entrée** : le fichier Word ***input/contrat_parametrage.docx*** contenant une table avec des cellules colorées :
 
-- Rouge : ajouter ou modifier la cellule
+- **Rouge** : ajouter ou modifier la cellule.
 
-- Rose : supprimer la cellule
+- **Rose** : supprimer la cellule.
 
-**Sortie** : le fichier Excel *output/parametres_mis_a_jour.xlsx* mis à jour :
+**Sortie** : le fichier Excel ***output/parametres_mis_a_jour.xlsx*** mis à jour :
 
-- Une nouvelle feuille Vxx est crée pour chaque version
+- Une nouvelle feuille Vxx est crée pour chaque version.
 
-- Les modifications sont appliquées selon le code couleur
+- Les modifications sont appliquées selon le code couleur.
 
 ### ▶️ Lancer le script principal :
 
@@ -76,7 +76,7 @@ python main.py
 > [!TIP]
 > Vous pouvez vous amuser à modifier les cellules surlignées dans le fichier Word d’entrée :
 >
-> - Changez la couleur d’une cellule en 🔴 rouge pour l’ajouter ou la modifier
-> - Passez-la en 🌸 rose pour la supprimer
+> - Changez la couleur d’une cellule en 🔴 **rouge** pour l’ajouter ou la **modifier**
+> - Passez-la en 🌸 **rose** pour la **supprimer**.
 >
 > Ensuite, relancez simplement le script `main.py` pour visualiser les effets dans le fichier Excel de sortie. Chaque exécution crée une nouvelle version dans une feuille dédiée, ce qui vous permet de suivre l’évolution des modifications pas à pas.

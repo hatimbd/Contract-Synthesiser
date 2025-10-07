@@ -81,3 +81,17 @@ python main.py
 > - Passez-la en 🌸 **rose** pour la **supprimer**.
 >
 > Ensuite, relancez simplement le script `main.py` pour visualiser les effets dans le fichier Excel de sortie. Chaque exécution crée une nouvelle version dans une feuille dédiée, ce qui vous permet de suivre l’évolution des modifications pas à pas.
+
+### 🖥️ Lancer l'interface graphique
+
+Le projet `contract_synthetiser` propose également une **interface graphique** simple et intuitive pour sélectionner les fichiers Word et Excel, lancer le traitement, et visualiser les résultats sans passer par le terminal.
+
+#### Lancer l'interface :
+
+```bash
+cd ..
+cd interface
+python gui.py
+```
+#### Aperçu de l’interface :
+<img src="screenshots/gui_screenshot.png" alt="Gui Screenshot" width="160"/>

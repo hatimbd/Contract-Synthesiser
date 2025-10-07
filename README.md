@@ -14,7 +14,7 @@ Ce projet prend un fichier **Word** (contenant un tableau avec du texte surlign�
 #### 1. 📥 Cloner le dépôt GitHub :
 
 ```bash
-git clone https://github.com/hatimbd/contract_synthetiser.git
+git clone https://github.com/hatimbd/contract-synthetiser.git
 cd contract_synthetiser
 ```
 

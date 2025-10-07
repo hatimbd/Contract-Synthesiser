@@ -94,4 +94,4 @@ cd interface
 python gui.py
 ```
 #### Aperçu de l’interface :
-<img src="screenshots/gui_screenshot.png" alt="Gui Screenshot" width="180"/>
+<img src="screenshots/gui_screenshot.png" alt="Gui Screenshot" width="300"/>

@@ -1,4 +1,5 @@
 ### Lancer le projet `contract_synthetiser` :
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)  
 
 Ce projet prend un fichier **Word** (contenant un tableau avec du texte surligné dans ses cellules) en entrée, détecte les modifications selon un **code couleur** (🔴 rouge pour **ajouter/modifier**, 🌸 rose pour **supprimer**), et met à jour un fichier **Excel** en sortie, en créant une nouvelle version dans une feuille dédiée.
 

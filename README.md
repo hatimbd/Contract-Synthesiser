@@ -71,7 +71,7 @@ python main.py
 ### ✅ Résultat attendu :
 - Le fichier Excel est mis à jour avec une nouvelle feuille versionnée
 - Les cellules sont modifiées ou supprimées selon les couleurs détectées dans le Word
-- Un message de confirmation s'affiche à la fin du traitement  
+- Un affichage (print) des modifications effectuées apparaît dans le terminal
 
 > [!TIP]
 > Vous pouvez vous amuser à modifier les cellules surlignées dans le fichier Word d’entrée :
